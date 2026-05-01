@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>印尼越南食品店</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f9f9f9;color:#222;font-size:15px}
+:root{--red:#C8102E;--light:#fff5f5;--border:#f0d0d0;--green:#06C755}
+nav{background:var(--red);color:#fff;padding:0 1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:54px}
+.nav-logo{font-size:16px;font-weight:500;cursor:pointer}
+.nav-right{display:flex;align-items:center;gap:6px}
+.lang-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:4px 9px;border-radius:14px;cursor:pointer;font-size:12px}
+.lang-btn.active{background:#fff;color:var(--red);font-weight:500}
+.cart-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:5px 11px;border-radius:14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:5px}
+.cart-count{background:#fff;color:var(--red);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500}
+#delivery-bar{background:#fff3cd;border-bottom:1px solid #ffc107;padding:10px 1rem;text-align:center;font-size:13px;color:#856404;position:sticky;top:54px;z-index:95}
+.hero{background:var(--red);color:#fff;text-align:center;padding:2rem 1rem 1.5rem}
+.hero h1{font-size:22px;font-weight:500;margin-bottom:6px}
+.hero p{font-size:13px;opacity:0.85}
+.tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);position:sticky;top:98px;z-index:90;overflow-x:auto}
+.tab{flex:1;min-width:80px;padding:11px 6px;text-align:center;cursor:pointer;font-size:13px;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:500}
+.section{display:none;padding:1rem}
+.section.active{display:block}
+.cat-title{font-size:14px;font-weight:500;color:var(--red);margin:1rem 0 0.6rem;padding-left:4px;border-left:3px solid var(--red)}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:1rem}
+.card{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
+.card-img{width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:38px;background:#fff8f8;border-bottom:1px solid var(--border);overflow:hidden}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card-body{padding:9px}
+.card-name{font-size:12px;font-weight:500;margin-bottom:2px;line-height:1.3;min-height:30px}
+.card-price{color:var(--red);font-weight:500;font-size:13px;margin-bottom:7px}
+select{width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-size:11px;margin-bottom:7px;background:#fff;color:#222}
+.qty-row{display:flex;align-items:center;gap:5px}
+.qty-btn{width:24px;height:24px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:#555}
+.qty-val{font-size:13px;font-weight:500;min-width:18px;text-align:center}
+.add-btn{flex:1;background:var(--red);color:#fff;border:none;border-radius:6px;padding:5px 3px;font-size:11px;cursor:pointer}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200}
+.overlay.open{display:flex;align-items:flex-end}
+.cart-panel{background:#fff;width:100%;max-height:88vh;border-radius:16px 16px 0 0;overflow-y:auto;padding:1.2rem}
+.cart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.cart-title-txt{font-size:16px;font-weight:500}
+.close-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#aaa}
+.cart-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.cart-item-name{flex:1;padding-right:8px;line-height:1.4}
+.cart-item-price{color:var(--red);font-weight:500;white-space:nowrap}
+.cart-remove{background:none;border:none;cursor:pointer;color:#ccc;font-size:16px;margin-left:6px}
+.cart-total-row{display:flex;justify-content:space-between;font-weight:500;padding:10px 0;font-size:15px;border-top:1px solid var(--border);margin-top:4px}
+.cart-empty{text-align:center;color:#aaa;padding:2rem 0;font-size:14px}
+.form-wrap{background:var(--light);border-radius:10px;padding:1rem;margin-top:1rem}
+.form-wrap h3{font-size:13px;font-weight:500;margin-bottom:10px;color:var(--red)}
+input,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:8px;color:#222;background:#fff;font-family:sans-serif}
+textarea{height:65px;resize:none}
+.submit-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;cursor:pointer;font-weight:500}
+.about-box{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:10px}
+.about-box h3{color:var(--red);font-size:14px;font-weight:500;margin-bottom:6px}
+.about-box p{font-size:13px;color:#555;line-height:1.6}
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:center;justify-content:center;padding:1rem}
+.admin-panel{background:#fff;border-radius:16px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto}
+.admin-header{background:var(--red);color:#fff;padding:1rem 1.2rem;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center}
+.admin-body{padding:1.2rem}
+.admin-tabs{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.admin-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);cursor:pointer;font-size:12px;background:#fff;color:#666}
+.admin-tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+.product-row{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
+.product-row-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.edit-grid label{font-size:11px;color:#888;display:block;margin-bottom:2px}
+.edit-grid input{margin-bottom:0;font-size:12px;padding:6px 8px}
+.full-input{grid-column:1/-1}
+.variant-row{display:flex;gap:6px;align-items:center;margin-bottom:4px}
+.variant-row input{margin-bottom:0;font-size:12px;padding:5px 8px}
+.del-btn{background:none;border:1px solid #ffcccc;color:#e55;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;white-space:nowrap}
+.add-product-btn{width:100%;border:2px dashed var(--border);background:none;border-radius:10px;padding:12px;cursor:pointer;color:#aaa;font-size:13px;margin-top:8px}
+.login-box{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:320px;text-align:center}
+.login-box h2{color:var(--red);margin-bottom:1rem;font-size:18px;font-weight:500}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.3s;z-index:500;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo" id="nav-logo" onclick="logoClick()">🌿 印尼越南食品店</div>
+  <div class="nav-right">
+    <button class="lang-btn active" onclick="setLang('zh',this)">中文</button>
+    <button class="lang-btn" onclick="setLang('id',this)">ID</button>
+    <button class="lang-btn" onclick="setLang('vi',this)">VI</button>
+    <button class="cart-btn" onclick="openCart()">🛒 <span class="cart-count" id="cart-count">0</span></button>
+  </div>
+</nav>
+<div id="delivery-bar">🛵 <span id="delivery-msg"></span></div>
+<div class="hero">
+  <h1 id="hero-title">東南亞食品專賣店</h1>
+  <p id="hero-sub">正宗印尼・越南食品，直送到府 🇮🇩 🇻🇳</p>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('id',this)">🇮🇩 <span id="tab-id">印尼商品</span></div>
+  <div class="tab" onclick="showTab('vn',this)">🇻🇳 <span id="tab-vn">越南商品</span></div>
+  <div class="tab" onclick="showTab('about',this)"><span id="tab-about">關於我們</span></div>
+</div>
+<div class="section active" id="sec-id"></div>
+<div class="section" id="sec-vn"></div>
+<div class="section" id="sec-about">
+  <div class="about-box"><h3 id="a1t">關於我們</h3><p id="a1p"></p></div>
+  <div class="about-box"><h3 id="a2t">訂購方式</h3><p id="a2p"></p></div>
+  <div class="about-box"><h3 id="a3t">付款方式</h3><p id="a3p"></p></div>
+  <div class="about-box"><h3 id="a4t">聯繫我們</h3><p id="a4p"></p></div>
+</div>
+<div class="overlay" id="overlay" onclick="bgClose(event)">
+  <div class="cart-panel">
+    <div class="cart-header">
+      <span class="cart-title-txt" id="cart-title-el">購物車</span>
+      <button class="close-btn" onclick="closeCart()">✕</button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="cart-total-row" id="cart-total-row" style="display:none">
+      <span id="total-label-el">合計</span>
+      <span id="total-price" style="color:var(--red)"></span>
+    </div>
+    <div class="form-wrap" id="order-form" style="display:none">
+      <h3 id="form-title-el">填寫收件資料</h3>
+      <input id="f-name" type="text">
+      <input id="f-phone" type="tel">
+      <input id="f-addr" type="text">
+      <textarea id="f-note"></textarea>
+      <button class="submit-btn" id="submit-btn" onclick="submitOrder()">送出訂單</button>
+    </div>
+  </div>
+</div>
+<div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:420px;max-height:90vh;overflow-y:auto">
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-size:40px">✅</div>
+      <h2 id="confirm-title" style="font-size:17px;font-weight:500;color:var(--red);margin-top:8px">訂單已建立！</h2>
+      <p id="confirm-sub" style="font-size:13px;color:#666;margin-top:4px">請複製訂單內容，傳送給我們的 LINE</p>
+    </div>
+    <div style="background:var(--light);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem">
+      <pre id="confirm-text" style="font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:sans-serif;color:#333"></pre>
+    </div>
+    <button id="copy-btn" onclick="copyOrder()" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;cursor:pointer;margin-bottom:8px">📋 複製訂單內容</button>
+
+    <button id="close-confirm-btn" onclick="document.getElementById('confirm-overlay').style.display='none'" style="width:100%;background:none;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;cursor:pointer;color:#888">關閉</button>
+  </div>
+</div>
+<div class="admin-overlay" id="admin-overlay">
+  <div class="login-box" id="login-box">
+    <h2>🔒 後台管理</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:1rem">請輸入管理員密碼</p>
+    <input type="password" id="admin-pw" placeholder="密碼" style="margin-bottom:12px" onkeydown="if(event.key==='Enter')checkPw()">
+    <button onclick="checkPw()" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;cursor:pointer;font-weight:500">登入</button>
+    <button onclick="closeAdmin()" style="width:100%;background:none;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;cursor:pointer;margin-top:8px;color:#888">取消</button>
+    <p id="pw-err" style="color:var(--red);font-size:12px;margin-top:8px;display:none">密碼錯誤！</p>
+  </div>
+  <div class="admin-panel" id="admin-panel" style="display:none">
+    <div class="admin-header">
+      <h2>⚙️ 後台管理</h2>
+      <button onclick="closeAdmin()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px">關閉</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-tabs" id="admin-cat-tabs"></div>
+      <div id="admin-products"></div>
+      <button class="add-product-btn" onclick="addProduct()">＋ 新增商品</button>
+      <button onclick="saveAll()" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;cursor:pointer;font-weight:500;margin-top:12px">💾 儲存所有變更</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const ADMIN_PW='90242050';
+let logoClickCount=0,logoClickTimer;
+const CDN='https://res.cloudinary.com/db0ff6s3p/image/upload/q_auto/f_auto/';
+const img=id=>CDN+id;
+
+const T={
+  zh:{logo:'🌿 印尼越南食品店',heroTitle:'東南亞食品專賣店',heroSub:'正宗印尼・越南食品，直送到府 🇮🇩 🇻🇳',tabId:'印尼商品',tabVn:'越南商品',tabAbout:'關於我們',cartTitle:'購物車',totalLabel:'合計',formTitle:'填寫收件資料',namePh:'姓名',phonePh:'電話號碼',addrPh:'送貨地址',notePh:'備註（可留空）',submitBtn:'送出訂單',cartEmpty:'購物車是空的',added:'已加入購物車',fillAll:'請填寫姓名、電話與地址',choose:'請選擇',addCart:'加入購物車',cur:'NT$',deliveryBase:'購物滿 NT$300 即可享免費外送！',deliveryDiff:'還差 NT$',deliverySuffix:' 即可免費外送！加油！',deliveryDone:'🎉 恭喜！您已達到免費外送門檻！',confirmTitle:'訂單已建立！',confirmSub:'請複製訂單內容，傳送給我們的 LINE',copyBtn:'📋 複製訂單內容',copiedBtn:'✓ 已複製！',lineBtn:'💬 開啟 LINE 傳送',closeBtn:'關閉',a1t:'關於我們',a1p:'我們是東南亞食品專賣店，提供來自印尼與越南的正宗食材、零食與調味料。',a2t:'訂購方式',a2p:'選擇商品加入購物車後，填寫姓名、電話與地址，我們確認後主動聯繫送達。',a3t:'付款方式',a3p:'目前接受貨到付款，無需線上付款，安心方便。',a4t:'聯繫我們',a4p:'如有任何問題，歡迎透過 LINE 聯繫我們的客服團隊。',ol:{order:'新訂單',name:'姓名',phone:'電話',addr:'地址',note:'備註',goods:'商品',total:'合計'}},
+  id:{logo:'🌿 Toko Asia Tenggara',heroTitle:'Toko Makanan Asia Tenggara',heroSub:'Produk Indonesia & Vietnam asli 🇮🇩 🇻🇳',tabId:'Produk Indonesia',tabVn:'Produk Vietnam',tabAbout:'Tentang Kami',cartTitle:'Keranjang',totalLabel:'Total',formTitle:'Isi Data Pengiriman',namePh:'Nama Lengkap',phonePh:'Nomor Telepon',addrPh:'Alamat Pengiriman',notePh:'Catatan (boleh kosong)',submitBtn:'Kirim Pesanan',cartEmpty:'Keranjang masih kosong',added:'Ditambahkan ke keranjang',fillAll:'Harap isi nama, telepon, dan alamat',choose:'Pilih',addCart:'Tambah ke Keranjang',cur:'NT$',deliveryBase:'Belanja NT$300 untuk gratis ongkir!',deliveryDiff:'Kurang NT$',deliverySuffix:' lagi untuk gratis ongkir!',deliveryDone:'🎉 Selamat! Anda mendapat gratis ongkir!',confirmTitle:'Pesanan dibuat!',confirmSub:'Salin isi pesanan dan kirim ke LINE kami',copyBtn:'📋 Salin isi pesanan',copiedBtn:'✓ Tersalin!',lineBtn:'💬 Buka LINE',closeBtn:'Tutup',a1t:'Tentang Kami',a1p:'Kami menyediakan makanan asli Indonesia dan Vietnam.',a2t:'Cara Pemesanan',a2p:'Pilih produk, isi data, kami akan menghubungi Anda.',a3t:'Pembayaran',a3p:'Bayar di tempat (COD).',a4t:'Hubungi Kami',a4p:'Silakan hubungi kami melalui LINE.',ol:{order:'Pesanan Baru',name:'Nama',phone:'Telepon',addr:'Alamat',note:'Catatan',goods:'Produk',total:'Total'}},
+  vi:{logo:'🌿 Cửa Hàng Đông Nam Á',heroTitle:'Cửa Hàng Thực Phẩm Đông Nam Á',heroSub:'Thực phẩm Indonesia & Việt Nam chính gốc 🇮🇩 🇻🇳',tabId:'Sản phẩm Indonesia',tabVn:'Sản phẩm Việt Nam',tabAbout:'Về Chúng Tôi',cartTitle:'Giỏ hàng',totalLabel:'Tổng cộng',formTitle:'Điền thông tin nhận hàng',namePh:'Họ và tên',phonePh:'Số điện thoại',addrPh:'Địa chỉ giao hàng',notePh:'Ghi chú (có thể để trống)',submitBtn:'Gửi đơn hàng',cartEmpty:'Giỏ hàng đang trống',added:'Đã thêm vào giỏ hàng',fillAll:'Vui lòng điền đầy đủ thông tin',choose:'Chọn',addCart:'Thêm vào giỏ',cur:'NT$',deliveryBase:'Mua NT$300 được miễn phí giao hàng!',deliveryDiff:'Còn thiếu NT$',deliverySuffix:' để được miễn phí giao hàng!',deliveryDone:'🎉 Chúc mừng! Bạn được miễn phí giao hàng!',confirmTitle:'Đơn hàng đã tạo!',confirmSub:'Sao chép nội dung và gửi qua LINE của chúng tôi',copyBtn:'📋 Sao chép đơn hàng',copiedBtn:'✓ Đã sao chép!',lineBtn:'💬 Mở LINE',closeBtn:'Đóng',a1t:'Về Chúng Tôi',a1p:'Chúng tôi cung cấp thực phẩm chính gốc Indonesia và Việt Nam.',a2t:'Cách Đặt Hàng',a2p:'Chọn sản phẩm, điền thông tin, chúng tôi sẽ liên hệ.',a3t:'Thanh Toán',a3p:'Thanh toán khi nhận hàng (COD).',a4t:'Liên Hệ',a4p:'Vui lòng liên hệ qua LINE.',ol:{order:'Đơn hàng mới',name:'Họ tên',phone:'Điện thoại',addr:'Địa chỉ',note:'Ghi chú',goods:'Sản phẩm',total:'Tổng cộng'}}
+};
+
+let products={
+  id:[
+    {cat:'🍜 袋麵 / Mie Instan', items:[
+      {id:'m1',img:img('v1776924537/IMG_9567_xwwbzd.jpg'),emoji:'🍜',zh:'Indomie 炒麵系列',id_:'Indomie Mi Goreng',vi:'Mì xào Indomie',type:'v',v:[
+        {lz:'牛肋風味撈麵',l:'Mi Goreng Rasa Iga Penyet',p:12},
+        {lz:'亞齊風味撈麵',l:'Mi Goreng Aceh',p:12},
+        {lz:'巴東風味撈麵',l:'Mi Goreng Rendang',p:12},
+        {lz:'特選極辛辣撈麵',l:'Mi Goreng Hot & Spicy',p:12},
+        {lz:'原味乾撈麵',l:'Mi Goreng Original',p:12},
+        {lz:'辣味雞肉撈麵',l:'Mi Goreng Rasa Ayam Pedas',p:12},
+      ]},
+      {id:'m2',img:img('v1776924537/IMG_9567_xwwbzd.jpg'),emoji:'🍜',zh:'Indomie 湯麵系列',id_:'Indomie Mi Kuah',vi:'Mì nước Indomie',type:'v',v:[
+        {lz:'雞肉味湯麵',l:'Rasa Kaldu Ayam',p:12},
+        {lz:'爪哇雞湯麵',l:'Soto Mie',p:12},
+        {lz:'蔥香雞肉湯麵',l:'Rasa Ayam Bawang',p:12},
+        {lz:'咖哩雞風味湯麵',l:'Rasa Kari Ayam',p:12},
+        {lz:'特製雞肉風味湯麵',l:'Rasa Ayam Special',p:12},
+        {lz:'藍夢島雞湯麵',l:'Soto Lamongan',p:12},
+        {lz:'激辣蘇門答臘湯麵',l:'Mi Kuah Seblak Hot Jeletot',p:12},
+      ]},
+      {id:'m3',img:img('v1776924543/IMG_9597_wkrvqs.jpg'),emoji:'🍜',zh:'Mie Sedaap 系列',id_:'Mie Sedaap',vi:'Mì Sedaap',type:'v',v:[
+        {lz:'韓國辣雞麵',l:'Korean Spicy Chicken',p:55},
+        {lz:'爪哇雞湯味',l:'Rasa Soto',p:32},
+        {lz:'激辣雞肉味',l:'Ayam Jerit',p:32},
+        {lz:'原味乾撈麵',l:'Mi Goreng',p:32},
+        {lz:'牛肉丸風味湯麵',l:'Rasa Bakso Spesial',p:32},
+      ]},
+    ]},
+    {cat:'🍵 杯麵 / Pop Mie', items:[
+      {id:'c1',img:img('v1776924543/IMG_9596_l1lsvz.jpg'),emoji:'🍵',zh:'Pop Mie 系列',id_:'Pop Mie',vi:'Mì ly Pop Mie',type:'v',v:[
+        {lz:'爪哇雞湯風味',l:'Soto Ayam',p:40},
+        {lz:'辣味乾撈麵',l:'Mi Goreng Pedas',p:40},
+        {lz:'極致辛辣乾撈麵',l:'Pedas Dower',p:40},
+        {lz:'雞肉風味湯麵',l:'Rasa Ayam',p:40},
+        {lz:'牛肉丸風味杯麵',l:'Rasa Baso',p:40},
+      ]},
+      {id:'c2',img:img('v1776924543/IMG_9597_wkrvqs.jpg'),emoji:'🍵',zh:'Mie Sedaap 杯麵系列',id_:'Mie Sedaap Cup',vi:'Mì ly Sedaap',type:'v',v:[
+        {lz:'爆火咖哩風味',l:'Kari Mercon',p:45},
+        {lz:'特製咖哩風味',l:'Kari Spesial',p:40},
+        {lz:'爪哇雞湯風味',l:'Soto',p:40},
+        {lz:'新加坡辣味叻沙',l:'Singapore Spicy Laksa',p:50},
+      ]},
+    ]},
+    {cat:'🥣 營養麥片 / Energen', items:[
+      {id:'e1',img:img('v1776924559/IMG_9663_st4dlm.jpg'),emoji:'🥣',zh:'Energen 營養麥片系列',id_:'Energen',vi:'Ngũ cốc Energen',type:'v',v:[
+        {lz:'綠豆風味',l:'Kacang Hijau',p:25},
+        {lz:'香草風味',l:'Vanila',p:25},
+        {lz:'芋頭風味',l:'Taro',p:25},
+        {lz:'薑汁風味',l:'Jahe',p:25},
+        {lz:'巧克力風味',l:'Cokelat',p:25},
+      ]},
+    ]},
+    {cat:'☕ 即溶咖啡 / Kopi Instan', items:[
+      {id:'k1',img:img('v1776924547/IMG_9610_bwrian.jpg'),emoji:'☕',zh:'ABC 即溶咖啡系列',id_:'Kopi ABC',vi:'Cà phê ABC',type:'v',v:[
+        {lz:'棕櫚糖奶香咖啡',l:'Kopi Susu Gula Aren',p:28},
+        {lz:'經典奶香咖啡',l:'Kopi Susu',p:25},
+        {lz:'摩卡咖啡',l:'Kopi Moka',p:25},
+      ]},
+      {id:'k2',img:img('v1776924547/IMG_9612_eby4sw.jpg'),emoji:'☕',zh:'Good Day 咖啡系列',id_:'Good Day',vi:'Cà phê Good Day',type:'v',v:[
+        {lz:'沁涼薄荷咖啡',l:"Coolin'",p:28},
+        {lz:'香草拿鐵咖啡',l:'Vanilla Latte',p:28},
+        {lz:'加勒比堅果咖啡',l:'Caribbean Nut',p:28},
+        {lz:'摩卡奇諾咖啡',l:'Mocacinno',p:28},
+        {lz:'巧克奇諾咖啡',l:'Chococinno',p:28},
+        {lz:'卡布奇諾(附可可粉)',l:'Cappuccino with Cocoa Granule',p:30},
+      ]},
+      {id:'k3',img:img('v1776924554/IMG_9641_q8xwbn.jpg'),emoji:'☕',zh:'Indocafé 三合一咖啡(30入)',id_:'Indocafé Coffeemix 3in1',vi:'Cà phê 3in1 Indocafé',type:'s',price:120},
+      {id:'k4',img:img('v1776924554/IMG_9642_wljt6o.jpg'),emoji:'☕',zh:'Luwak 白咖啡(18入)',id_:'Luwak White Koffie 18pcs',vi:'Cà phê trắng Luwak 18 gói',type:'s',price:110},
+      {id:'k5',img:img('v1776924555/IMG_9650_bdmbal.jpg'),emoji:'☕',zh:'Luwak 白咖啡(10入)',id_:'Luwak White Koffie 10pcs',vi:'Cà phê trắng Luwak 10 gói',type:'s',price:70},
+      {id:'k6',img:img('v1776924555/IMG_9649_ui2coh.jpg'),emoji:'🥛',zh:'Nestlé Milo 美祿',id_:'MILO Activ-Go',vi:'Milo Nestlé',type:'s',price:32},
+      {id:'k7',img:img('v1776924547/IMG_9611_ce8xeu.jpg'),emoji:'🫚',zh:'Sido Muncul 薑飲系列',id_:'Sido Muncul Jahe',vi:'Đồ uống gừng Sido Muncul',type:'v',v:[
+        {lz:'薑汁咖啡',l:'Kopi Jahe',p:25},
+        {lz:'薑汁奶茶',l:'Susu Jahe',p:25},
+      ]},
+    ]},
+    {cat:'🍱 料理調理包 / Bumbu Masak', items:[
+      {id:'b1',img:img('v1776924543/IMG_9593_bpkd1c.jpg'),emoji:'🍱',zh:'Indofood 調理包系列',id_:'Indofood Bumbu',vi:'Gia vị Indofood',type:'v',v:[
+        {lz:'東爪哇黑牛肉湯',l:'Rawon',p:55},
+        {lz:'爪哇雞湯',l:'Soto Ayam',p:50},
+        {lz:'巴東牛肉',l:'Rendang',p:55},
+        {lz:'椰漿燉雞',l:'Opor Ayam',p:50},
+        {lz:'印尼咖哩',l:'Kare',p:50},
+        {lz:'辣味紅咖哩',l:'Gulai',p:50},
+      ]},
+      {id:'b2',img:img('v1776924543/IMG_9594_rgl45c.jpg'),emoji:'🍱',zh:'Bamboe 調理包系列',id_:'Bamboe Bumbu',vi:'Gia vị Bamboe',type:'v',v:[
+        {lz:'辣炒內臟',l:'Sambal Goreng Ati',p:50},
+        {lz:'印尼辣味紅咖哩',l:'Gule',p:50},
+        {lz:'牛肉丸湯底',l:'Kuah Bakso',p:50},
+        {lz:'萬那杜辛辣雞',l:'Rica-Rica',p:55},
+        {lz:'椰奶蔬菜燉湯',l:'Lodeh',p:50},
+      ]},
+      {id:'b3',img:img('v1776924543/IMG_9595_hobmmm.jpg'),emoji:'🍱',zh:'Kokita 調理包系列',id_:'Kokita Bumbu',vi:'Gia vị Kokita',type:'v',v:[
+        {lz:'薑黃飯調味醬',l:'Nasi Kuning',p:55},
+        {lz:'巴東乾咖哩',l:'Rendang Padang',p:55},
+        {lz:'巴拉多紅辣椒醬',l:'Sambal Balado',p:55},
+      ]},
+      {id:'b4',img:img('v1776924559/IMG_9664_qz9fap.jpg'),emoji:'🧂',zh:'Indofood Racik 即煮調味包',id_:'Indofood Racik',vi:'Gia vị Racik',type:'v',v:[
+        {lz:'炒菜風味',l:'Racik Tumis',p:25},
+        {lz:'炸魚風味',l:'Racik Ikan Goreng',p:25},
+        {lz:'蔬菜湯風味',l:'Racik Sayur Sop',p:25},
+        {lz:'炸天貝/豆腐',l:'Racik Tempe & Tahu',p:25},
+      ]},
+    ]},
+    {cat:'🌶️ 辣椒醬 / Sambal', items:[
+      {id:'s1',img:img('v1776924556/IMG_9651_ibkk27.jpg'),emoji:'🌶️',zh:'ABC 辣椒醬系列',id_:'Sambal ABC',vi:'Tương ớt ABC',type:'v',v:[
+        {lz:'經典辣椒醬',l:'Sambal Asli',p:55},
+        {lz:'特辣辣椒醬(大瓶)',l:'Sambal Extra Pedas',p:85},
+      ]},
+      {id:'s2',img:img('v1776924558/IMG_9659_y18gsc.jpg'),emoji:'🌶️',zh:'Dua Belibis 辣椒醬',id_:'Sambal Dua Belibis',vi:'Tương ớt Dua Belibis',type:'v',v:[
+        {lz:'辣椒醬（大）',l:'Saus Cabe Besar',p:85},
+        {lz:'辣椒醬（小）',l:'Saus Cabe Kecil',p:45},
+      ]},
+      {id:'s3',img:img('v1776924559/IMG_9663_at4dlm.jpg'),emoji:'🌶️',zh:'Foodies Sunda 辣椒醬系列',id_:'Sambal Foodies Sunda',vi:'Tương ớt Foodies Sunda',type:'v',v:[
+        {lz:'蔥香辣椒醬',l:'Sambal Bawang',p:65},
+        {lz:'吻仔魚辣椒醬',l:'Sambal Teri',p:65},
+        {lz:'臭豆小卷辣椒醬',l:'Sambal Pete Cumi',p:70},
+        {lz:'狗牙豆辣椒醬',l:'Sambal Jengkol',p:65},
+      ]},
+    ]},
+    {cat:'🫙 醬料 / Saus & Kecap', items:[
+      {id:'sa1',img:img('v1776924557/IMG_9655_lce7cc.jpg'),emoji:'🫙',zh:'ABC 醬油系列',id_:'Kecap ABC',vi:'Nước tương ABC',type:'v',v:[
+        {lz:'甜醬油(玻璃瓶)',l:'Kecap Manis',p:75},
+        {lz:'辣味甜醬油',l:'Kecap Manis Pedas',p:75},
+      ]},
+      {id:'sa2',img:img('v1776924558/IMG_9656_ily5tu.jpg'),emoji:'🫙',zh:'Bango 甜醬油',id_:'Kecap Manis Bango',vi:'Nước tương Bango',type:'s',price:80},
+      {id:'sa3',img:img('v1776924551/IMG_9630_pgsj6g.jpg'),emoji:'🦐',zh:'ABC 蝦膏',id_:'Terasi Udang ABC',vi:'Mắm ruốc ABC',type:'s',price:65},
+      {id:'sa4',img:img('v1776924551/IMG_9629_fzd25n.jpg'),emoji:'🦐',zh:'Selera Nusantara 蝦膏',id_:'Terasi Udang Selera Nusantara',vi:'Mắm tôm Selera Nusantara',type:'s',price:75},
+      {id:'sa5',img:img('v1776924558/IMG_9658_gwrpwk.jpg'),emoji:'🫙',zh:'SAORI 蠔油',id_:'Saus Tiram SAORI',vi:'Dầu hào SAORI',type:'s',price:70},
+      {id:'sa6',img:img('v1776924548/IMG_9618_jk9o9w.jpg'),emoji:'🥜',zh:'花生沙拉醬系列',id_:'Bumbu Gado-Gado',vi:'Tương đậu phộng',type:'v',v:[
+        {lz:'KARANGSARI 辣味花生醬',l:'Bumbu Gado-Gado Pedas',p:65},
+        {lz:'SINTI 印尼花生醬',l:'Bumbu Pecel',p:65},
+      ]},
+      {id:'sa7',img:img('v1776924552/IMG_9637_tzpiq4.jpg'),emoji:'🍛',zh:'泰式咖哩醬系列',id_:'Nam Jai Curry Paste',vi:'Cà ri Thái Nam Jai',type:'v',v:[
+        {lz:'紅咖哩醬',l:'Red Curry Paste',p:75},
+        {lz:'綠咖哩醬',l:'Green Curry Paste',p:75},
+      ]},
+    ]},
+    {cat:'🧂 調味粉 / Bumbu Bubuk', items:[
+      {id:'bp1',img:img('v1776924548/IMG_9614_xxhtm7.jpg'),emoji:'🧂',zh:'Royco 調味粉系列',id_:'Royco Bumbu',vi:'Bột nêm Royco',type:'v',v:[
+        {lz:'雞肉風味(小)',l:'Rasa Ayam',p:35},
+        {lz:'牛肉風味(小)',l:'Rasa Sapi',p:35},
+        {lz:'土雞風味(大220g)',l:'Rasa Ayam Kampung 220g',p:85},
+        {lz:'牛骨髓風味(大220g)',l:'Rasa Sapi 220g',p:85},
+      ]},
+      {id:'bp2',img:img('v1776924548/IMG_9615_gt0pcq.jpg'),emoji:'🧂',zh:'Masako 雞肉調味粉',id_:'Masako Rasa Ayam',vi:'Bột nêm Masako gà',type:'s',price:35},
+      {id:'bp3',img:img('v1776924553/IMG_9640_ixd7am.jpg'),emoji:'🧂',zh:'Sasa 純味精',id_:'Gourmet Powder Sasa',vi:'Bột ngọt Sasa',type:'s',price:25},
+      {id:'bp4',img:img('v1776924552/IMG_9631_vyfrfp.jpg'),emoji:'🧂',zh:'MamaSuka 肉丸湯底',id_:'Bumbu Kuah Bakso MamaSuka',vi:'Gia vị súp meatball',type:'s',price:45},
+      {id:'bp5',img:img('v1776924552/IMG_9634_q1qu30.jpg'),emoji:'🌿',zh:'KOEPOE KOEPOE 辛香料系列',id_:'Bumbu KOEPOE KOEPOE',vi:'Gia vị KOEPOE KOEPOE',type:'v',v:[
+        {lz:'山奈粉',l:'Kencur Bubuk',p:45},
+        {lz:'薑粉',l:'Jahe Bubuk',p:45},
+        {lz:'咖哩粉',l:'Bubuk Kari',p:45},
+        {lz:'白胡椒粉',l:'Lada Putih Bubuk',p:45},
+      ]},
+    ]},
+    {cat:'🥥 椰子製品 / Produk Kelapa', items:[
+      {id:'co1',img:img('v1776924547/IMG_9609_qugynk.jpg'),emoji:'🥥',zh:'Kara 椰漿系列',id_:'Kara Santan',vi:'Nước cốt dừa Kara',type:'v',v:[
+        {lz:'椰漿粉(50g)',l:'Coconut Cream Powder 50g',p:35},
+        {lz:'椰漿(200ml)',l:'Coconut Cream 200ml',p:45},
+        {lz:'椰漿小包(65ml)',l:'Coconut Cream 65ml',p:25},
+      ]},
+      {id:'co2',img:img('v1776924549/IMG_9620_bv5ipl.jpg'),emoji:'🍬',zh:'Nectarina 椰子糖(塊狀)',id_:'Gula Jawa Nectarina',vi:'Đường dừa Nectarina',type:'s',price:75},
+    ]},
+    {cat:'🍪 餅乾零食 / Snack', items:[
+      {id:'sn1',img:img('v1776924538/IMG_9568_uctonh.jpg'),emoji:'🌽',zh:'Tic Tac 零食系列',id_:'Tic Tac Snack',vi:'Snack Tic Tac',type:'v',v:[
+        {lz:'蔥香雞肉風味(80g)',l:'Rasa Ayam Bawang',p:35},
+        {lz:'辣味風味(80g)',l:'Rasa Pedas',p:35},
+        {lz:'經典原味(80g)',l:'Original',p:35},
+        {lz:'海苔風味(80g)',l:'Rasa Rumput Laut',p:35},
+      ]},
+      {id:'sn2',img:img('v1776924538/IMG_9569_mqdbnf.jpg'),emoji:'🍪',zh:'Khong Guan/Gery 蘇打餅系列',id_:'Malkist Khong Guan',vi:'Bánh quy Khong Guan',type:'v',v:[
+        {lz:'肉鬆蘇打餅(135g)',l:'Malkist Rasa Abon',p:55},
+        {lz:'巧克力蘇打餅(100g)',l:'Malkist Salut Cokelat',p:50},
+        {lz:'甜起司厚醬蘇打餅(110g)',l:'Saluut Malkist Sweet Cheese',p:55},
+        {lz:'巧克力椰子蘇打餅(110g)',l:'Saluut Malkist Chocolate Coconut',p:55},
+      ]},
+      {id:'sn3',img:img('v1776924539/IMG_9572_eagzzu.jpg'),emoji:'🥜',zh:'花生零食系列',id_:'Kacang Snack',vi:'Đồ ăn vặt đậu phộng',type:'v',v:[
+        {lz:'Garuda 蛋酥花生(100g)',l:'Kacang Telur Garuda',p:45},
+        {lz:'Sukro 酥脆麵衣花生(95g)',l:'Sukro Kribo',p:40},
+        {lz:'Sukro 原味裹粉花生(95g)',l:'Sukro Original',p:40},
+        {lz:'Gangsar 原味脆皮花生豆(140g)',l:'Kacang Atom',p:45},
+      ]},
+      {id:'sn4',img:img('v1776924540/IMG_9574_frdhkz.jpg'),emoji:'🌽',zh:'BonCabe 酥脆通心粉',id_:'Makaroni Krispi BonCabe',vi:'Snack BonCabe',type:'v',v:[
+        {lz:'辣度10(135g)',l:'Makaroni Krispi Level 10',p:35},
+        {lz:'辣度15(大包)',l:'Makaroni Krispi Level 15',p:45},
+      ]},
+      {id:'sn5',img:img('v1776924539/IMG_9579_kwangs.jpg'),emoji:'🍪',zh:'其他餅乾系列',id_:'Biskuit Lainnya',vi:'Bánh khác',type:'v',v:[
+        {lz:'W.L. 辣味起司玉米粒(70g)',l:'Corn Bits Chili Cheese',p:35},
+        {lz:'Nissin 輕脆糖衣蘇打餅(250g)',l:'Nissin Crispy Crackers',p:65,img:img('v1776924538/IMG_9580_vb3vlw.jpg')},
+        {lz:'Serena 巧克力夾心餅(225g)',l:'Serena Chocolate Short Cake',p:65},
+        {lz:'Roma 全麥牛奶巧克力夾心(108g)',l:'Roma Sari Gandum',p:45},
+        {lz:'Nissin 奶油椰子餅乾(200g)',l:'Nissin Butter Coconut',p:65},
+        {lz:'Hup Seng 砂糖蘇打餅(428g)',l:'Hup Seng Sugar Crackers',p:85},
+      ]},
+      {id:'sn6',img:img('v1776924539/IMG_9582_p4zmfr.jpg'),emoji:'🍫',zh:'威化捲心酥系列',id_:'Wafer & Cokelat',vi:'Bánh xốp & Socola',type:'v',v:[
+        {lz:'Nabati 巧克力威化餅(110g)',l:'Nabati Richoco',p:40},
+        {lz:'Nabati 粉紅熔岩威化餅(110g)',l:'Nabati Pink Lava',p:40},
+        {lz:'Nabati 起司威化餅(110g)',l:'Nabati Richeese',p:40},
+        {lz:'Chocolatos 巧克力威化捲(24入)',l:'Chocolatos Rasa Cokelat',p:45},
+        {lz:'Gery 黑巧克力捲心酥(280g)',l:'Gery Dark Chocolate',p:75},
+        {lz:'Tango 草莓威化餅(133g)',l:'Tango Sassy Strawberry',p:55},
+        {lz:'Tango 香草威化餅(133g)',l:'Tango Vanilla Delight',p:55},
+        {lz:'Tango 皇家巧克力威化餅(99g)',l:'Tango Royal Chocolate',p:55,img:img('v1776924541/IMG_9590_wc8sjo.jpg')},
+        {lz:'LOTTE 巧克力派(6入)',l:'Choco Pie Marshmallow',p:65,img:img('v1776924542/IMG_9591_apbvtk.jpg')},
+        {lz:'Monica 印尼千層糕(410g)',l:'Lapis Legit Spesial',p:180},
+      ]},
+    ]},
+    {cat:'🍬 糖果 / Permen', items:[
+      {id:'p1',img:img('v1776924555/IMG_9643_nl3hdp.jpg'),emoji:'🍬',zh:"FOX'S 水果糖系列",id_:"Permen FOX'S",vi:"Kẹo FOX'S",type:'v',v:[
+        {lz:'水果口味(檸檬與黑醋栗)',l:'Fruits Lemon & Blackcurrant',p:35},
+        {lz:'薄荷花香口味',l:'Mint Blossom',p:35},
+        {lz:'水果薄荷口味',l:'Fruity Mints',p:35},
+      ]},
+      {id:'p2',img:img('v1776924554/IMG_9644_vj6csd.jpg'),emoji:'☕',zh:'KOPIKO 咖啡糖系列',id_:'Permen KOPIKO',vi:'Kẹo cà phê KOPIKO',type:'v',v:[
+        {lz:'經典咖啡糖(175g)',l:'Coffee 175g',p:55},
+        {lz:'卡布奇諾咖啡糖(150g)',l:'Cappuccino 150g',p:55},
+      ]},
+      {id:'p3',img:img('v1776924554/IMG_9645_uf5tmh.jpg'),emoji:'🍬',zh:'Kino 軟糖系列',id_:'Permen Kino',vi:'Kẹo Kino',type:'v',v:[
+        {lz:'曼谷榴槤軟糖(125g)',l:'Durian Bangkok',p:35},
+        {lz:'蜜糖芒果軟糖(125g)',l:'Mangga Arumanis',p:35},
+      ]},
+      {id:'p4',img:img('v1776924555/IMG_9646_kmaidp.jpg'),emoji:'🍬',zh:'Mentos 薄荷糖(135g)',id_:'Mentos Mint',vi:'Kẹo Mentos bạc hà',type:'s',price:35},
+      {id:'p5',img:img('v1776924555/IMG_9647_lottdd.jpg'),emoji:'🍬',zh:'Tamarin 羅望子糖(135g)',id_:'Tamarin Permen Sari Asam',vi:'Kẹo me Tamarin',type:'s',price:35},
+    ]},
+    {cat:'🥤 飲料 / Minuman', items:[
+      {id:'d1',img:img('v1776924545/IMG_9600_yi4de1.jpg'),emoji:'🥤',zh:'Lasegar 飲料系列',id_:'Minuman Lasegar',vi:'Nước uống Lasegar',type:'v',v:[
+        {lz:'草莓口味(320ml)',l:'Rasa Stroberi',p:35},
+        {lz:'萊姆口味(320ml)',l:'Rasa Jeruk Nipis',p:35},
+        {lz:'荔枝口味(320ml)',l:'Rasa Leci',p:35},
+      ]},
+      {id:'d2',img:img('v1776924544/IMG_9601_fxyvgp.jpg'),emoji:'🍋',zh:'YOU-C1000 維他命飲系列',id_:'YOU-C1000',vi:'Nước vitamin YOU-C1000',type:'v',v:[
+        {lz:'維他命檸檬飲(140ml)',l:'Vitamin Lemon',p:30},
+        {lz:'維他命柳橙飲(140ml)',l:'Vitamin Orange',p:30},
+      ]},
+      {id:'d3',img:img('v1776924544/IMG_9602_ny3cfo.jpg'),emoji:'🥛',zh:'Nestlé Bear Brand 熊牌牛奶',id_:'Susu Bear Brand',vi:'Sữa gấu Bear Brand',type:'s',price:50},
+      {id:'d4',img:img('v1776924544/IMG_9603_ddssch.jpg'),emoji:'🍵',zh:'Teh Pucuk Harum 茉莉花茶',id_:'Teh Pucuk Harum',vi:'Trà Teh Pucuk Harum',type:'s',price:35},
+      {id:'d5',img:img('v1776924545/IMG_9604_nxa32x.jpg'),emoji:'🍵',zh:'Sosro 茉莉花茶(450ml)',id_:'Tehbotol Sosro',vi:'Trà hoa nhài Sosro',type:'s',price:35},
+      {id:'d6',img:img('v1776924545/IMG_9605_dvq5yx.jpg'),emoji:'🥥',zh:'TEPTIP 椰子汁(310ml)',id_:'Young Coconut Juice TEPTIP',vi:'Nước dừa TEPTIP',type:'s',price:45},
+      {id:'d7',img:img('v1776924545/IMG_9606_gwhobz.jpg'),emoji:'🌿',zh:'Adem Sari 草本檸檬氣泡飲',id_:'Adem Sari Herbal Lemon',vi:'Nước chanh thảo mộc Adem Sari',type:'s',price:40},
+      {id:'d8',img:img('v1776924545/IMG_9605_dvq5yx.jpg'),emoji:'🪺',zh:'Vinut 高級燕窩飲(250ml)',id_:'Vinut Nước Yến Sào',vi:'Nước yến Vinut',type:'s',price:65},
+      {id:'d9',img:img('v1776924559/IMG_9665_csldsa.jpg'),emoji:'🌿',zh:'Kiranti 薑黃草本飲(150ml)',id_:'Kiranti Sehat Datang Bulan',vi:'Nước thảo dược Kiranti',type:'s',price:45},
+      {id:'d10',img:img('v1776924544/IMG_9599_wvr9ht.jpg'),emoji:'🥛',zh:'Ultra Milk 調味乳',id_:'Ultra Milk',vi:'Sữa Ultra Milk',type:'v',v:[
+        {lz:'草莓調味乳(250ml)',l:'Rasa Stroberi',p:40},
+        {lz:'巧克力調味乳(250ml)',l:'Rasa Cokelat',p:40},
+      ]},
+    ]},
+    {cat:'🦐 蝦餅/魚餅(生) / Kerupuk Mentah', items:[
+      {id:'kr1',img:img('v1776924550/IMG_9624_xetlwf.jpg'),emoji:'🦐',zh:'蝦餅系列(生)',id_:'Kerupuk Udang Mentah',vi:'Bánh phồng tôm sống',type:'v',v:[
+        {lz:'Aloha 席多阿佐蝦餅(500g)',l:'Kerupuk Udang Aloha Sidoarjo',p:120},
+        {lz:'FINNA 群島蝦餅(380g)',l:'Kerupuk Udang FINNA Nusantara',p:110},
+      ]},
+      {id:'kr2',img:img('v1776924550/IMG_9626_ksej7c.jpg'),emoji:'🐟',zh:'魚餅系列(生)',id_:'Kerupuk Ikan Mentah',vi:'Bánh phồng cá sống',type:'v',v:[
+        {lz:'FINNA 白昌魚脆餅(380g)',l:'Kerupuk Ikan Bawal Putih',p:110},
+        {lz:'Aloha 鮮魚餅(500g)',l:'Kerupuk Ikan Aloha',p:120},
+      ]},
+      {id:'kr3',img:img('v1776924551/IMG_9627_cnewy9.jpg'),emoji:'🌿',zh:'HOKI LAI 倪滕果脆餅(250g)',id_:'Kerupuk Emping HOKI LAI',vi:'Bánh phồng melinjo',type:'s',price:95},
+    ]},
+    {cat:'🌾 食材 / Bahan Makanan', items:[
+      {id:'f1',img:img('v1776924548/IMG_9617_k8vlro.jpg'),emoji:'🌾',zh:'Bogasari 麵粉系列',id_:'Tepung Bogasari',vi:'Bột mì Bogasari',type:'v',v:[
+        {lz:'高筋麵粉 雙子星(1kg)',l:'Cakra Kembar 1kg',p:75},
+        {lz:'中筋麵粉 藍三角(1kg)',l:'Segitiga Biru 1kg',p:70},
+      ]},
+      {id:'f2',img:img('v1776924550/IMG_9621_h884if.jpg'),emoji:'🌾',zh:'ROSE BRAND 米粉系列',id_:'Tepung ROSE BRAND',vi:'Bột ROSE BRAND',type:'v',v:[
+        {lz:'在來米粉(500g)',l:'Tepung Beras Putih 500g',p:55},
+        {lz:'糯米粉(500g)',l:'Tepung Ketan Putih 500g',p:55},
+      ]},
+      {id:'f3',img:img('v1776924550/IMG_9623_gaxwmh.jpg'),emoji:'🌾',zh:'CAP GUNUNG AGUNG 木薯粉(500g)',id_:'Tepung Tapioka Cap Gunung Agung',vi:'Bột năng Cap Gunung Agung',type:'s',price:45},
+      {id:'f4',img:img('v1776924560/%E5%A4%A9%E8%B2%9D.jpg'),emoji:'🌰',zh:'Epm 石栗(蠟燭果)(100g)',id_:'Kemiri Epm',vi:'Hạt dẻ nến Kemiri',type:'s',price:55},
+    ]},
+    {cat:'🫘 天貝 / Tempe', items:[
+      {id:'t1',img:img('v1776924560/%E5%A4%A9%E8%B2%9D.jpg'),emoji:'🫘',zh:'Ois Tempe 原味天貝',id_:'Tempe Ois',vi:'Đậu nành lên men Tempe',type:'s',price:65},
+    ]},
+    {cat:'🍰 烘焙材料 / Bahan Kue', items:[
+      {id:'bk1',img:img('v1776924552/IMG_9635_vffnxk.jpg'),emoji:'🍰',zh:'KOEPOE KOEPOE 烘焙材料系列',id_:'Bahan Kue KOEPOE KOEPOE',vi:'Nguyên liệu làm bánh',type:'v',v:[
+        {lz:'泡打粉(45g)',l:'Baking Powder 45g',p:35},
+        {lz:'塔塔粉(45g)',l:'Cream of Tartar 45g',p:35},
+        {lz:'蛋糕乳化劑 TBM(35g)',l:'TBM 35g',p:40},
+        {lz:'蛋糕乳化劑 SP(30g)',l:'SP 30g',p:40},
+      ]},
+    ]},
+  ],
+  vn:[
+    {cat:'🧂 調味粉 / Bột Canh', items:[
+      {id:'vn1',img:img('v1776924552/IMG_9638_vpqumd.jpg'),emoji:'🧂',zh:'VIFON 經典湯底粉系列',id_:'VIFON Bột Canh',vi:'Bột canh VIFON',type:'v',v:[
+        {lz:'經典湯底粉 大(900g)',l:'Bột Canh 900g',p:0},
+        {lz:'經典湯底粉 中(200g)',l:'Bột Canh 200g',p:0},
+      ]},
+    ]},
+    {cat:'🫙 調味醬 / Nước Chấm & Dầu Hào', items:[
+      {id:'vn2',img:img('v1776924558/IMG_9660_fkocy9.jpg'),emoji:'🫙',zh:'Maggi 系列',id_:'Maggi',vi:'Maggi',type:'v',v:[
+        {lz:'蠔油 鮑魚風味(350g)',l:'Dầu Hào Bào Ngư 350g',p:0},
+        {lz:'鮮味大豆醬油 小(300ml)',l:'Nước Tương Đậu Nành 300ml',p:0},
+        {lz:'鮮味大豆醬油 大(700ml)',l:'Nước Tương Đậu Nành 700ml',p:0},
+      ]},
+    ]},
+    {cat:'🥤 飲料 / Đồ Uống', items:[
+      {id:'vn3',img:img('v1776924547/IMG_9608_bidlf1.jpg'),emoji:'🥤',zh:'Vinut 紅毛丹果汁(330ml)',id_:'Vinut Nước Chôm Chôm Ép',vi:'Nước Chôm Chôm Ép Vinut 330ml',type:'s',price:0},
+    ]},
+  ]
+};
+
+let curLang='zh',cart=[],adminCat='id-0';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbwCp0CBSkpYZO8f6JB_kkgrI03mzgUel9JwCHZzRslTJI9v2tjEBMcgfbEFw9iDalQH/exec';
+
+async function loadPrices() {
+  try {
+    const res1 = await fetch(SHEET_URL + '?sheet=印尼');
+    const data1 = await res1.json();
+    
+    const applyPrices = (data, productList) => {
+      let matched = 0;
+      data.forEach(row => {
+        const keys = Object.keys(row);
+        // 自動抓取欄位名稱
+        const nameKey = keys.find(k => k.replace(/\s+/g, '').includes('口味(中文)')) || '口味(中文)';
+        const priceKey = keys.find(k => k.includes('價錢')) || '價錢';
+        const brandKey = keys.find(k => k.includes('品牌')) || '品牌';
+
+        const rawName = row[nameKey] || row['商品名稱'] || '';
+        const cleanName = rawName.toString().replace(/\s+/g, '');
+        const brand = (row[brandKey] || '').toString().replace(/\s+/g, '');
+        const price = Number(row[priceKey]) || 0;
+
+        if (!cleanName || !price) return;
+
+        for (const cat of productList) {
+          for (const p of cat.items) {
+            if (p.type === 'v') {
+              p.v.forEach(v => {
+                // --- 穩定版修正：收緊公差，避免價錢亂跳 ---
+        const webLz = v.lz.toString().replace(/\s+/g, '');
+        
+        // 1. 第一優先：名稱必須完全一致 (不含空格)
+        let isMatch = (webLz === cleanName); 
+
+        // 2. 第二優先：針對「杯麵」做嚴格的例外處理
+        if (!isMatch && cleanName.includes("杯麵")) {
+            // 只有當後台名字去掉「杯麵」後，網頁名字依然精確包含該口味，才更新
+            const flavorOnly = cleanName.replace("杯麵", "");
+            if (flavorOnly !== "" && webLz === flavorOnly) {
+                isMatch = true;
+            }
+        }
+
+        if (isMatch) {
+            v.p = price;
+            matched++;
+            // 只有杯麵成功時才印出 Log，方便你確認
+            if (cleanName.includes("杯麵")) {
+                console.log(`🎯 精確命中：${cleanName} -> ${price} 元`);
+            }
+        }
+
+                if (isMatch) {
+                  v.p = price;
+                  matched++;
+                  if (cleanName.includes("杯麵")) console.log(`🎯 命中杯麵：${cleanName} -> ${price}`);
+                }
+              });
+            } else {
+              const targetName = p.zh.toString().replace(/\s+/g, '');
+              if (targetName === cleanName || targetName.includes(cleanName)) {
+                p.price = price;
+                matched++;
+              }
+            }
+          }
+        }
+      });
+      console.log('--- 價格同步報告 ---');
+      console.log('成功匹配數量:', matched);
+    };
+    
+    // --- 執行印尼區同步 ---
+    console.log('🚀 開始同步印尼區價格...');
+    applyPrices(data1, products.id);
+
+    // --- 執行越南區同步 ---
+    const res2 = await fetch(SHEET_URL + '?sheet=越南');
+    const data2 = await res2.json();
+    console.log('🚀 開始同步越南區價格...');
+    applyPrices(data2, products.vn);
+    
+    // 價格更新完畢後，強制重新渲染畫面
+    renderAll(); 
+    console.log('✨ 所有價格渲染完成！');
+  } catch (e) {
+    console.log('❌ 價格同步錯誤：' + e.message);
+  }
+}
+function t(k){return T[curLang][k]||T.zh[k]||''}
+function pname(p){return curLang==='id'?p.id_:curLang==='vi'?p.vi:p.zh}
+function logoClick(){logoClickCount++;clearTimeout(logoClickTimer);if(logoClickCount>=5){logoClickCount=0;openAdmin();}else logoClickTimer=setTimeout(()=>logoClickCount=0,2000);}
+function setLang(l,btn){curLang=l;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');applyLang();renderAll();renderCart();}
+function applyLang(){const t={id:{cart:'Keranjang',check:'Bayar',total:'Total'},vn:{cart:'Giỏ hàng',check:'Thanh toán',total:'Tổng'},zh:{cart:'購物車',check:'結帳',total:'合計'}};const c=document.getElementById('cart-title');if(c)c.textContent=t[curLang].cart;const b=document.getElementById('checkout-btn');if(b)b.textContent=t[curLang].check;const tl=document.getElementById('total-label');if(tl)tl.textContent=t[curLang].total;}
+function renderAll(){['id','vn'].forEach(country=>{const sec=document.getElementById('sec-'+country);sec.innerHTML='';products[country].forEach(cat=>{const h=document.createElement('div');h.className='cat-title';h.textContent=cat.cat;sec.appendChild(h);const grid=document.createElement('div');grid.className='product-grid';cat.items.forEach(p=>grid.appendChild(makeCard(p)));sec.appendChild(grid);});});}
+function makeCard(p){const d=document.createElement('div');d.className='card';const imgHtml=p.img?`<div class="card-img"><img src="${p.img}" onerror="this.parentNode.innerHTML='${p.emoji}'"></div>`:`<div class="card-img">${p.emoji}</div>`;if(p.type==='s'){d.innerHTML=`${imgHtml}<div class="card-body"><div class="card-name">${pname(p)}</div><div class="card-price">${t('cur')}${p.price}</div><div class="qty-row"><button class="qty-btn" onclick="chgQty('${p.id}',-1)">−</button><span class="qty-val" id="q-${p.id}">1</span><button class="qty-btn" onclick="chgQty('${p.id}',1)">+</button><button class="add-btn" onclick="addCart('${p.id}')">${t('addCart')}</button></div></div>`;}else{const opts=p.v.map((v,i)=>`<option value="${i}">${curLang==='zh'?v.lz:v.l} — ${t('cur')}${v.p}</option>`).join('');d.innerHTML=`${imgHtml}<div class="card-body"><div class="card-name">${pname(p)}</div><select id="s-${p.id}" onchange="updPrice('${p.id}')"><option value="">${t('choose')}...</option>${opts}</select><div class="card-price" id="pr-${p.id}">—</div><div class="qty-row"><button class="qty-btn" onclick="chgQty('${p.id}',-1)">−</button><span class="qty-val" id="q-${p.id}">1</span><button class="qty-btn" onclick="chgQty('${p.id}',1)">+</button><button class="add-btn" onclick="addCart('${p.id}')">${t('addCart')}</button></div></div>`;}return d;}
+function updPrice(pid){const p=findP(pid);const sel=document.getElementById('s-'+pid);const pr=document.getElementById('pr-'+pid);if(!sel||!pr)return;if(!sel.value){pr.textContent='—';return;}pr.textContent=t('cur')+p.v[+sel.value].p;}
+function chgQty(pid,d){const el=document.getElementById('q-'+pid);if(!el)return;let v=parseInt(el.textContent)+d;if(v<1)v=1;el.textContent=v;}
+function findP(pid){for(const c of [...products.id,...products.vn])for(const p of c.items)if(p.id===pid)return p;}
+function addCart(pid){const p=findP(pid);const qty=parseInt(document.getElementById('q-'+pid).textContent);let name=pname(p),price=0;if(p.type==='v'){const sel=document.getElementById('s-'+pid);if(!sel.value){showToast('⚠ '+t('choose'));return;}const vi=p.v[+sel.value];name+=` (${curLang==='zh'?vi.lz:vi.l})`;price=vi.p;}else price=p.price;cart.push({name,price,qty});updCount();showToast('✓ '+t('added'));}
+function updCount(){const total=cart.reduce((s,i)=>s+i.qty,0);const sum=cart.reduce((s,i)=>s+i.price*i.qty,0);document.getElementById('cart-count').textContent=total;const bar=document.getElementById('delivery-bar');const msg=document.getElementById('delivery-msg');if(sum===0){msg.textContent=t('deliveryBase');bar.style.background='#fff3cd';bar.style.color='#856404';}else if(sum<300){msg.textContent=t('deliveryDiff')+(300-sum)+t('deliverySuffix');bar.style.background='#fff3cd';bar.style.color='#856404';}else{msg.textContent=t('deliveryDone');bar.style.background='#d4edda';bar.style.color='#155724';}}
+function openCart(){document.getElementById('overlay').classList.add('open');renderCart();}
+function closeCart(){document.getElementById('overlay').classList.remove('open');}
+function bgClose(e){if(e.target===document.getElementById('overlay'))closeCart();}
+function renderCart(){const el=document.getElementById('cart-items'),tot=document.getElementById('cart-total-row'),form=document.getElementById('order-form');if(!cart.length){el.innerHTML=`<p class="cart-empty">${t('cartEmpty')}</p>`;tot.style.display='none';form.style.display='none';return;}el.innerHTML=cart.map((item,i)=>`<div class="cart-item"><span class="cart-item-name">${item.name} ×${item.qty}</span><span class="cart-item-price">${t('cur')}${item.price*item.qty}</span><button class="cart-remove" onclick="rmItem(${i})">✕</button></div>`).join('');const sum=cart.reduce((s,i)=>s+i.price*i.qty,0);document.getElementById('total-price').textContent=`${t('cur')}${sum}`;tot.style.display='flex';form.style.display='block';}
+function rmItem(i){cart.splice(i,1);updCount();renderCart();}
+function submitOrder(){const name=document.getElementById('f-name').value.trim();const phone=document.getElementById('f-phone').value.trim();const addr=document.getElementById('f-addr').value.trim();const note=document.getElementById('f-note').value.trim();if(!name||!phone||!addr){showToast('⚠ '+t('fillAll'));return;}const lb=T[curLang].ol;const items=cart.map(i=>`・${i.name} ×${i.qty} = ${t('cur')}${i.price*i.qty}`).join('\n');const sum=cart.reduce((s,i)=>s+i.price*i.qty,0);const orderText=`【${lb.order}】\n👤 ${lb.name}: ${name}\n📞 ${lb.phone}: ${phone}\n📍 ${lb.addr}: ${addr}${note?'\n📝 '+lb.note+': '+note:''}\n\n🛒 ${lb.goods}:\n${items}\n\n💰 ${lb.total}: ${t('cur')}${sum}`;document.getElementById('confirm-text').textContent=orderText;document.getElementById('confirm-overlay').style.display='flex';cart=[];updCount();closeCart();}
+function copyOrder(){navigator.clipboard.writeText(document.getElementById('confirm-text').textContent).then(()=>{const btn=document.getElementById('copy-btn');btn.textContent=t('copiedBtn');setTimeout(()=>btn.textContent=t('copyBtn'),2000);});}
+function showTab(name,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('sec-'+name).classList.add('active');el.classList.add('active');}
+function openAdmin(){document.getElementById('admin-overlay').style.display='flex';document.getElementById('login-box').style.display='block';document.getElementById('admin-panel').style.display='none';document.getElementById('admin-pw').value='';document.getElementById('pw-err').style.display='none';}
+function closeAdmin(){document.getElementById('admin-overlay').style.display='none';}
+function checkPw(){if(document.getElementById('admin-pw').value===ADMIN_PW){document.getElementById('login-box').style.display='none';document.getElementById('admin-panel').style.display='block';renderAdminTabs();renderAdminProducts();}else document.getElementById('pw-err').style.display='block';}
+function renderAdminTabs(){const tabs=document.getElementById('admin-cat-tabs');tabs.innerHTML='';const allCats=[];products.id.forEach((c,i)=>allCats.push({key:'id-'+i,label:'🇮🇩 '+c.cat}));products.vn.forEach((c,i)=>allCats.push({key:'vn-'+i,label:'🇻🇳 '+c.cat}));allCats.forEach(c=>{const btn=document.createElement('button');btn.className='admin-tab'+(adminCat===c.key?' active':'');btn.textContent=c.label;btn.onclick=()=>{adminCat=c.key;renderAdminTabs();renderAdminProducts();};tabs.appendChild(btn);});}
+function renderAdminProducts(){const[country,idx]=adminCat.split('-');const cat=products[country][parseInt(idx)];const container=document.getElementById('admin-products');container.innerHTML='';cat.items.forEach(p=>{const row=document.createElement('div');row.className='product-row';const imgEl=p.img?`<img src="${p.img}" style="width:44px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border)">`:`<div style="width:44px;height:44px;border-radius:6px;background:#fff8f8;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px">${p.emoji}</div>`;let varHtml='';if(p.type==='v'){varHtml=`<div style="grid-column:1/-1"><label style="font-size:11px;color:#888;display:block;margin-bottom:4px">口味／規格</label>`+p.v.map((v,vi)=>`<div class="variant-row"><input value="${v.lz}" placeholder="中文" oninput="updV('${p.id}',${vi},'lz',this.value)"><input value="${v.l}" placeholder="越文/印尼文" oninput="updV('${p.id}',${vi},'l',this.value)"><input type="number" value="${v.p}" style="width:70px" oninput="updV('${p.id}',${vi},'p',+this.value)"><button class="del-btn" onclick="delV('${p.id}',${vi})">刪除</button></div>`).join('')+`<button onclick="addV('${p.id}')" style="background:none;border:1px dashed var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#aaa;margin-top:4px">＋ 新增口味</button></div>`;}else{varHtml=`<div><label style="font-size:11px;color:#888;display:block;margin-bottom:2px">價格</label><input type="number" value="${p.price}" oninput="updF('${p.id}','price',+this.value)" style="margin-bottom:0;font-size:12px;padding:6px 8px"></div>`;}row.innerHTML=`<div class="product-row-header">${imgEl}<div style="flex:1"><div style="font-size:13px;font-weight:500">${p.zh}</div><div style="font-size:11px;color:#aaa">${p.type==='v'?'系列':'單品'}</div></div><button class="del-btn" onclick="delP('${p.id}')">刪除</button></div><div class="edit-grid"><div class="full-input"><label style="font-size:11px;color:#888;display:block;margin-bottom:2px">商品圖片網址</label><input value="${p.img||''}" placeholder="貼上 Cloudinary 圖片網址" oninput="updF('${p.id}','img',this.value)" style="margin-bottom:0;font-size:11px;padding:6px 8px"></div><div><label style="font-size:11px;color:#888;display:block;margin-bottom:2px">中文名稱</label><input value="${p.zh}" oninput="updF('${p.id}','zh',this.value)" style="margin-bottom:0;font-size:12px;padding:6px 8px"></div><div><label style="font-size:11px;color:#888;display:block;margin-bottom:2px">越文/印尼文名稱</label><input value="${p.id_||p.vi||''}" oninput="updF('${p.id}','id_',this.value)" style="margin-bottom:0;font-size:12px;padding:6px 8px"></div>${varHtml}</div>`;container.appendChild(row);});}
+function updF(pid,f,v){const p=findP(pid);if(p)p[f]=v;}
+function updV(pid,vi,f,v){const p=findP(pid);if(p&&p.v[vi])p.v[vi][f]=v;}
+function delV(pid,vi){const p=findP(pid);if(p){p.v.splice(vi,1);renderAdminProducts();}}
+function addV(pid){const p=findP(pid);if(p){p.v.push({l:'新規格',lz:'新規格',p:0});renderAdminProducts();}}
+function delP(pid){const[country,idx]=adminCat.split('-');const cat=products[country][parseInt(idx)];cat.items=cat.items.filter(p=>p.id!==pid);renderAdminProducts();}
+function addProduct(){const[country,idx]=adminCat.split('-');const cat=products[country][parseInt(idx)];cat.items.push({id:'p'+Date.now(),img:'',emoji:'🆕',zh:'新商品',id_:'Sản phẩm mới',vi:'Sản phẩm mới',type:'s',price:0});renderAdminProducts();}
+function saveAll(){renderAll();closeAdmin();showToast('✅ 已儲存並更新！');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+renderAll();
+try{applyLang();}catch(e){console.log('applyLang錯誤:',e.message,e.stack);}
+setTimeout(()=>{try{loadPrices();}catch(e){console.log('loadPrices錯誤:',e);}},500);
+</script>
+</body>
+</html>
