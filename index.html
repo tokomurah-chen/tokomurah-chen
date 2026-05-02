@@ -484,88 +484,53 @@ const SHEET_URL='https://script.google.com/macros/s/AKfycbxIB66mycDqMddDhDPRf9xg
 
 async function loadPrices() {
   try {
-    const res1 = await fetch(SHEET_URL + '?sheet=印尼');
-    const data1 = await res1.json();
-    
+    const res = await fetch(SHEET_URL + '?action=loadProducts');
+    const data = await res.json();
+
+    if (data.products) {
+      products = data.products;
+      console.log('✅ 從 Google Sheets 載入商品成功');
+    } else {
+      console.log('ℹ️ 尚無 Sheets 商品設定，使用預設資料並同步價格');
+      await syncPricesOnly();
+    }
+    renderAll();
+  } catch (e) {
+    console.log('❌ 載入商品錯誤：' + e.message);
+    await syncPricesOnly();
+    renderAll();
+  }
+}
+
+async function syncPricesOnly() {
+  try {
     const applyPrices = (data, productList) => {
-      let matched = 0;
       data.forEach(row => {
         const keys = Object.keys(row);
-        // 自動抓取欄位名稱
         const nameKey = keys.find(k => k.replace(/\s+/g, '').includes('口味(中文)')) || '口味(中文)';
         const priceKey = keys.find(k => k.includes('價錢')) || '價錢';
-        const brandKey = keys.find(k => k.includes('品牌')) || '品牌';
-
-        const rawName = row[nameKey] || row['商品名稱'] || '';
-        const cleanName = rawName.toString().replace(/\s+/g, '');
-        const brand = (row[brandKey] || '').toString().replace(/\s+/g, '');
+        const rawName = (row[nameKey] || row['商品名稱'] || '').toString().replace(/\s+/g, '');
         const price = Number(row[priceKey]) || 0;
-
-        if (!cleanName || !price) return;
-
+        if (!rawName || !price) return;
         for (const cat of productList) {
           for (const p of cat.items) {
             if (p.type === 'v') {
-              p.v.forEach(v => {
-                // --- 穩定版修正：收緊公差，避免價錢亂跳 ---
-        const webLz = v.lz.toString().replace(/\s+/g, '');
-        
-        // 1. 第一優先：名稱必須完全一致 (不含空格)
-        let isMatch = (webLz === cleanName); 
-
-        // 2. 第二優先：針對「杯麵」做嚴格的例外處理
-        if (!isMatch && cleanName.includes("杯麵")) {
-            // 只有當後台名字去掉「杯麵」後，網頁名字依然精確包含該口味，才更新
-            const flavorOnly = cleanName.replace("杯麵", "");
-            if (flavorOnly !== "" && webLz === flavorOnly) {
-                isMatch = true;
-            }
-        }
-
-        if (isMatch) {
-            v.p = price;
-            matched++;
-            // 只有杯麵成功時才印出 Log，方便你確認
-            if (cleanName.includes("杯麵")) {
-                console.log(`🎯 精確命中：${cleanName} -> ${price} 元`);
-            }
-        }
-
-                if (isMatch) {
-                  v.p = price;
-                  matched++;
-                  if (cleanName.includes("杯麵")) console.log(`🎯 命中杯麵：${cleanName} -> ${price}`);
-                }
-              });
+              p.v.forEach(v => { if (v.lz.replace(/\s+/g,'') === rawName) v.p = price; });
             } else {
-              const targetName = p.zh.toString().replace(/\s+/g, '');
-              if (targetName === cleanName || targetName.includes(cleanName)) {
-                p.price = price;
-                matched++;
-              }
+              if (p.zh.replace(/\s+/g,'') === rawName) p.price = price;
             }
           }
         }
       });
-      console.log('--- 價格同步報告 ---');
-      console.log('成功匹配數量:', matched);
     };
-    
-    // --- 執行印尼區同步 ---
-    console.log('🚀 開始同步印尼區價格...');
-    applyPrices(data1, products.id);
-
-    // --- 執行越南區同步 ---
-    const res2 = await fetch(SHEET_URL + '?sheet=越南');
-    const data2 = await res2.json();
-    console.log('🚀 開始同步越南區價格...');
-    applyPrices(data2, products.vn);
-    
-    // 價格更新完畢後，強制重新渲染畫面
-    renderAll(); 
-    console.log('✨ 所有價格渲染完成！');
-  } catch (e) {
-    console.log('❌ 價格同步錯誤：' + e.message);
+    const [r1, r2] = await Promise.all([
+      fetch(SHEET_URL + '?sheet=印尼').then(r => r.json()),
+      fetch(SHEET_URL + '?sheet=越南').then(r => r.json())
+    ]);
+    applyPrices(r1, products.id);
+    applyPrices(r2, products.vn);
+  } catch(e) {
+    console.log('價格同步失敗:', e.message);
   }
 }
 function t(k){return T[curLang][k]||T.zh[k]||''}
@@ -599,7 +564,29 @@ function delV(pid,vi){const p=findP(pid);if(p){p.v.splice(vi,1);renderAdminProdu
 function addV(pid){const p=findP(pid);if(p){p.v.push({l:'新規格',lz:'新規格',p:0});renderAdminProducts();}}
 function delP(pid){const[country,idx]=adminCat.split('-');const cat=products[country][parseInt(idx)];cat.items=cat.items.filter(p=>p.id!==pid);renderAdminProducts();}
 function addProduct(){const[country,idx]=adminCat.split('-');const cat=products[country][parseInt(idx)];cat.items.push({id:'p'+Date.now(),img:'',emoji:'🆕',zh:'新商品',id_:'Sản phẩm mới',vi:'Sản phẩm mới',type:'s',price:0});renderAdminProducts();}
-function saveAll(){renderAll();closeAdmin();showToast('✅ 已儲存並更新！');}
+async function saveAll() {
+  const btn = document.querySelector('.admin-body button[onclick="saveAll()"]');
+  if (btn) { btn.textContent = '⏳ 儲存中...'; btn.disabled = true; }
+  try {
+    const res = await fetch(SHEET_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'saveProducts', products }),
+      headers: { 'Content-Type': 'text/plain' }
+    });
+    const result = await res.json();
+    if (result.success) {
+      renderAll();
+      closeAdmin();
+      showToast('✅ 已儲存到 Google Sheets！');
+    } else {
+      showToast('❌ 儲存失敗：' + result.error);
+    }
+  } catch (e) {
+    showToast('❌ 網路錯誤：' + e.message);
+  } finally {
+    if (btn) { btn.textContent = '💾 儲存所有變更'; btn.disabled = false; }
+  }
+}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 renderAll();
 try{applyLang();}catch(e){console.log('applyLang錯誤:',e.message,e.stack);}
