@@ -537,7 +537,16 @@ function t(k){return T[curLang][k]||T.zh[k]||''}
 function pname(p){return curLang==='id'?p.id_:curLang==='vi'?p.vi:p.zh}
 function logoClick(){logoClickCount++;clearTimeout(logoClickTimer);if(logoClickCount>=5){logoClickCount=0;openAdmin();}else logoClickTimer=setTimeout(()=>logoClickCount=0,2000);}
 function setLang(l,btn){curLang=l;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');applyLang();renderAll();renderCart();}
-function applyLang(){const t={id:{cart:'Keranjang',check:'Bayar',total:'Total'},vn:{cart:'Giỏ hàng',check:'Thanh toán',total:'Tổng'},zh:{cart:'購物車',check:'結帳',total:'合計'}};const c=document.getElementById('cart-title');if(c)c.textContent=t[curLang].cart;const b=document.getElementById('checkout-btn');if(b)b.textContent=t[curLang].check;const tl=document.getElementById('total-label');if(tl)tl.textContent=t[curLang].total;}
+ function applyLang(){
+  document.getElementById('f-name').placeholder=t('namePh');
+  document.getElementById('f-phone').placeholder=t('phonePh');
+  document.getElementById('f-addr').placeholder=t('addrPh');
+  document.getElementById('f-note').placeholder=t('notePh');
+  document.getElementById('submit-btn').textContent=t('submitBtn');
+  document.getElementById('form-title-el').textContent=t('formTitle');
+  document.getElementById('cart-title-el').textContent=t('cartTitle');
+  document.getElementById('total-label-el').textContent=t('totalLabel');
+}
 function renderAll(){['id','vn'].forEach(country=>{const sec=document.getElementById('sec-'+country);sec.innerHTML='';products[country].forEach(cat=>{const h=document.createElement('div');h.className='cat-title';h.textContent=cat.cat;sec.appendChild(h);const grid=document.createElement('div');grid.className='product-grid';cat.items.forEach(p=>grid.appendChild(makeCard(p)));sec.appendChild(grid);});});}
 function makeCard(p){const d=document.createElement('div');d.className='card';const imgHtml=p.img?`<div class="card-img"><img src="${p.img}" onerror="this.parentNode.innerHTML='${p.emoji}'"></div>`:`<div class="card-img">${p.emoji}</div>`;if(p.type==='s'){d.innerHTML=`${imgHtml}<div class="card-body"><div class="card-name">${pname(p)}</div><div class="card-price">${t('cur')}${p.price}</div><div class="qty-row"><button class="qty-btn" onclick="chgQty('${p.id}',-1)">−</button><span class="qty-val" id="q-${p.id}">1</span><button class="qty-btn" onclick="chgQty('${p.id}',1)">+</button><button class="add-btn" onclick="addCart('${p.id}')">${t('addCart')}</button></div></div>`;}else{const opts=p.v.map((v,i)=>`<option value="${i}">${curLang==='zh'?v.lz:v.l} — ${t('cur')}${v.p}</option>`).join('');d.innerHTML=`${imgHtml}<div class="card-body"><div class="card-name">${pname(p)}</div><select id="s-${p.id}" onchange="updPrice('${p.id}')"><option value="">${t('choose')}...</option>${opts}</select><div class="card-price" id="pr-${p.id}">—</div><div class="qty-row"><button class="qty-btn" onclick="chgQty('${p.id}',-1)">−</button><span class="qty-val" id="q-${p.id}">1</span><button class="qty-btn" onclick="chgQty('${p.id}',1)">+</button><button class="add-btn" onclick="addCart('${p.id}')">${t('addCart')}</button></div></div>`;}return d;}
 function updPrice(pid){const p=findP(pid);const sel=document.getElementById('s-'+pid);const pr=document.getElementById('pr-'+pid);if(!sel||!pr)return;if(!sel.value){pr.textContent='—';return;}pr.textContent=t('cur')+p.v[+sel.value].p;}
